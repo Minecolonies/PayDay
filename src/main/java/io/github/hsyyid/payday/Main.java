@@ -1,12 +1,12 @@
 package io.github.hsyyid.payday;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.concurrent.TimeUnit;
-
+import ninja.leaping.configurate.ConfigurationNode;
+import com.erigitic.config.AccountManager;
+import com.erigitic.main.TotalEconomy;
+import com.google.inject.Inject;
+import io.github.hsyyid.payday.utils.Utils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
@@ -22,13 +22,15 @@ import org.spongepowered.api.service.scheduler.TaskBuilder;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
-import com.erigitic.config.AccountManager;
-import com.erigitic.main.TotalEconomy;
-import com.google.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
 
-@Plugin(id = "PayDay", name = "PayDay", version = "0.2", dependencies = "required-after:TotalEconomy")
+@Plugin(id = "PayDay", name = "PayDay", version = "0.3", dependencies = "required-after:TotalEconomy")
 public class Main
 {
+    public static ConfigurationNode config = null;
+    public static ConfigurationLoader<CommentedConfigurationNode> configurationManager;
 	public static Game game = null;
 
 	@Inject
@@ -52,6 +54,23 @@ public class Main
 	{
 		getLogger().info("PayDay loading...");
 
+		try
+        {
+            if (!dConfig.exists())
+            {
+                dConfig.createNewFile();
+                config = confManager.load();
+                confManager.save(config);
+            }
+
+            configurationManager = confManager;
+            config = confManager.load();
+        }
+        catch (IOException exception)
+        {
+            getLogger().error("The default configuration could not be loaded or created!");
+        }
+		
 		game = event.getGame();
 
 		SchedulerService scheduler = game.getScheduler();
@@ -79,7 +98,7 @@ public class Main
 					}
 				}
 			}
-		}).interval(1, TimeUnit.HOURS).name("PayDay - Pay").submit(game.getPluginManager().getPlugin("PayDay").get().getInstance());
+		}).interval(1, Utils.getTimeUnit()).name("PayDay - Pay").submit(game.getPluginManager().getPlugin("PayDay").get().getInstance());
 
 		getLogger().info("-----------------------------");
 		getLogger().info("PayDay was made by HassanS6000!");
@@ -111,4 +130,9 @@ public class Main
 			}
 		}
 	}
+	
+	public static ConfigurationLoader<CommentedConfigurationNode> getConfigManager()
+    {
+        return configurationManager;
+    }
 }
