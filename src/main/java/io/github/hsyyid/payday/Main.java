@@ -87,7 +87,7 @@ public class Main
 					if (subject instanceof OptionSubject)
 					{
 						OptionSubject optionSubject = (OptionSubject) subject;
-						double pay = Double.parseDouble(optionSubject.getOption("pay").or(""));
+						double pay = Double.parseDouble(optionSubject.getOption("pay").orElse(""));
 
 						player.sendMessage(Texts.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "It's PayDay! Here is your salary of " + pay + " dollars! Enjoy!"));
 
@@ -118,7 +118,7 @@ public class Main
 		if (subject instanceof OptionSubject)
 		{
 			OptionSubject optionSubject = (OptionSubject) subject;
-			double pay = Double.parseDouble(optionSubject.getOption("startingbalance").or(""));
+			double pay = Double.parseDouble(optionSubject.getOption("startingbalance").orElse(""));
 			TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
 			AccountManager accountManager = totalEconomy.getAccountManager();
 
