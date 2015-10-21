@@ -29,8 +29,8 @@ import java.math.BigDecimal;
 @Plugin(id = "PayDay", name = "PayDay", version = "0.3", dependencies = "required-after:TotalEconomy")
 public class Main
 {
-    public static ConfigurationNode config = null;
-    public static ConfigurationLoader<CommentedConfigurationNode> configurationManager;
+	public static ConfigurationNode config = null;
+	public static ConfigurationLoader<CommentedConfigurationNode> configurationManager;
 	public static Game game = null;
 
 	@Inject
@@ -55,22 +55,22 @@ public class Main
 		getLogger().info("PayDay loading...");
 
 		try
-        {
-            if (!dConfig.exists())
-            {
-                dConfig.createNewFile();
-                config = confManager.load();
-                confManager.save(config);
-            }
+		{
+			if (!dConfig.exists())
+			{
+				dConfig.createNewFile();
+				config = confManager.load();
+				confManager.save(config);
+			}
 
-            configurationManager = confManager;
-            config = confManager.load();
-        }
-        catch (IOException exception)
-        {
-            getLogger().error("The default configuration could not be loaded or created!");
-        }
-		
+			configurationManager = confManager;
+			config = confManager.load();
+		}
+		catch (IOException exception)
+		{
+			getLogger().error("The default configuration could not be loaded or created!");
+		}
+
 		game = event.getGame();
 
 		SchedulerService scheduler = game.getScheduler();
@@ -80,7 +80,7 @@ public class Main
 		{
 			public void run()
 			{
-				for(Player player : game.getServer().getOnlinePlayers())
+				for (Player player : game.getServer().getOnlinePlayers())
 				{
 					Subject subject = player.getContainingCollection().get(player.getIdentifier());
 
@@ -118,21 +118,25 @@ public class Main
 		if (subject instanceof OptionSubject)
 		{
 			OptionSubject optionSubject = (OptionSubject) subject;
-			double pay = Double.parseDouble(optionSubject.getOption("startingbalance").orElse(""));
-			TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
-			AccountManager accountManager = totalEconomy.getAccountManager();
-
-			if(!(accountManager.hasAccount(player.getUniqueId())))
+			
+			if (optionSubject.getOption("startingbalance").isPresent())
 			{
-				player.sendMessage(Texts.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "Welcome to the server! Here is " + pay + " dollars! Enjoy!"));
-				BigDecimal amount = new BigDecimal(pay);
-				accountManager.addToBalance(player.getUniqueId(), amount, true);
+				double pay = Double.parseDouble(optionSubject.getOption("startingbalance").get());
+				TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
+				AccountManager accountManager = totalEconomy.getAccountManager();
+
+				if (!(accountManager.hasAccount(player.getUniqueId())))
+				{
+					player.sendMessage(Texts.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "Welcome to the server! Here is " + pay + " dollars! Enjoy!"));
+					BigDecimal amount = new BigDecimal(pay);
+					accountManager.addToBalance(player.getUniqueId(), amount, true);
+				}
 			}
 		}
 	}
-	
+
 	public static ConfigurationLoader<CommentedConfigurationNode> getConfigManager()
-    {
-        return configurationManager;
-    }
+	{
+		return configurationManager;
+	}
 }
