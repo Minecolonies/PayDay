@@ -3,7 +3,7 @@ package io.github.hsyyid.payday.utils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-import io.github.hsyyid.payday.Main;
+import io.github.hsyyid.payday.PayDay;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class Utils
 {
     public static TimeUnit getTimeUnit()
     {
-        ConfigurationNode valueNode = Main.config.getNode((Object[]) ("timeunit").split("\\."));
+        ConfigurationNode valueNode = PayDay.config.getNode((Object[]) ("timeunit").split("\\."));
         
         if(valueNode.getValue() != null)
         {
@@ -63,12 +63,12 @@ public class Utils
     
     public static void setTimeUnit(String timeunit)
     {
-        ConfigurationLoader<CommentedConfigurationNode> configManager = Main.getConfigManager();
-        Main.config.getNode("timeunit").setValue(timeunit);
+        ConfigurationLoader<CommentedConfigurationNode> configManager = PayDay.getConfigManager();
+        PayDay.config.getNode("timeunit").setValue(timeunit);
         
         try
         {
-            configManager.save(Main.config);
+            configManager.save(PayDay.config);
             configManager.load();
         }
         catch (IOException e)

@@ -1,10 +1,10 @@
 package io.github.hsyyid.payday;
 
-import ninja.leaping.configurate.ConfigurationNode;
 import com.erigitic.config.AccountManager;
 import com.erigitic.main.TotalEconomy;
 import com.google.inject.Inject;
 import io.github.hsyyid.payday.utils.Utils;
+import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.service.scheduler.SchedulerService;
-import org.spongepowered.api.service.scheduler.TaskBuilder;
+import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 @Plugin(id = "PayDay", name = "PayDay", version = "0.3", dependencies = "required-after:TotalEconomy")
-public class Main
+public class PayDay
 {
 	public static ConfigurationNode config = null;
 	public static ConfigurationLoader<CommentedConfigurationNode> configurationManager;
@@ -74,7 +74,7 @@ public class Main
 		game = event.getGame();
 
 		SchedulerService scheduler = game.getScheduler();
-		TaskBuilder taskBuilder = scheduler.createTaskBuilder();
+		Task.Builder taskBuilder = scheduler.createTaskBuilder();
 
 		taskBuilder.execute(new Runnable()
 		{
@@ -87,14 +87,18 @@ public class Main
 					if (subject instanceof OptionSubject)
 					{
 						OptionSubject optionSubject = (OptionSubject) subject;
-						double pay = Double.parseDouble(optionSubject.getOption("pay").orElse(""));
 
-						player.sendMessage(Texts.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "It's PayDay! Here is your salary of " + pay + " dollars! Enjoy!"));
+						if (optionSubject.getOption("pay").isPresent())
+						{
+							double pay = Double.parseDouble(optionSubject.getOption("pay").get());
 
-						TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
-						AccountManager accountManager = totalEconomy.getAccountManager();
-						BigDecimal amount = new BigDecimal(pay);
-						accountManager.addToBalance(player.getUniqueId(), amount, true);
+							player.sendMessage(Texts.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "It's PayDay! Here is your salary of " + pay + " dollars! Enjoy!"));
+
+							TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
+							AccountManager accountManager = totalEconomy.getAccountManager();
+							BigDecimal amount = new BigDecimal(pay);
+							accountManager.addToBalance(player.getUniqueId(), amount, true);
+						}
 					}
 				}
 			}
@@ -118,7 +122,7 @@ public class Main
 		if (subject instanceof OptionSubject)
 		{
 			OptionSubject optionSubject = (OptionSubject) subject;
-			
+
 			if (optionSubject.getOption("startingbalance").isPresent())
 			{
 				double pay = Double.parseDouble(optionSubject.getOption("startingbalance").get());
