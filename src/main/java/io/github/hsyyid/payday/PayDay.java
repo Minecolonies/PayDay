@@ -9,16 +9,17 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.service.config.DefaultConfig;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
-import org.spongepowered.api.service.scheduler.SchedulerService;
-import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -71,9 +72,9 @@ public class PayDay
 			getLogger().error("The default configuration could not be loaded or created!");
 		}
 
-		game = event.getGame();
+		game = Sponge.getGame();
 
-		SchedulerService scheduler = game.getScheduler();
+		Scheduler scheduler = game.getScheduler();
 		Task.Builder taskBuilder = scheduler.createTaskBuilder();
 
 		taskBuilder.execute(new Runnable()
@@ -94,7 +95,7 @@ public class PayDay
 
 							player.sendMessage(Texts.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "It's PayDay! Here is your salary of " + pay + " dollars! Enjoy!"));
 
-							TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
+							TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance().get();
 							AccountManager accountManager = totalEconomy.getAccountManager();
 							BigDecimal amount = new BigDecimal(pay);
 							accountManager.addToBalance(player.getUniqueId(), amount, true);
@@ -126,7 +127,7 @@ public class PayDay
 			if (optionSubject.getOption("startingbalance").isPresent())
 			{
 				double pay = Double.parseDouble(optionSubject.getOption("startingbalance").get());
-				TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance();
+				TotalEconomy totalEconomy = (TotalEconomy) game.getPluginManager().getPlugin("TotalEconomy").get().getInstance().get();
 				AccountManager accountManager = totalEconomy.getAccountManager();
 
 				if (!(accountManager.hasAccount(player.getUniqueId())))
