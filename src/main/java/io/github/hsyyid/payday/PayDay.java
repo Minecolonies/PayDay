@@ -12,7 +12,8 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Scheduler;
@@ -27,6 +28,7 @@ import org.spongepowered.api.text.format.TextColors;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Plugin(id = "PayDay", name = "PayDay", version = "0.4")
 public class PayDay
@@ -53,7 +55,7 @@ public class PayDay
 	private ConfigurationLoader<CommentedConfigurationNode> confManager;
 
 	@Listener
-	public void onServerStart(GameStartedServerEvent event)
+	public void onGameInit(GameInitializationEvent event)
 	{
 		getLogger().info("PayDay loading...");
 
@@ -120,7 +122,22 @@ public class PayDay
 		getLogger().info("-----------------------------");
 		getLogger().info("PayDay loaded!");
 	}
-
+	
+	@Listener
+	public void onGamePostInit(GamePostInitializationEvent event)
+	{
+		Optional<EconomyService> econService = Sponge.getServiceManager().provide(EconomyService.class);
+		
+		if(econService.isPresent())
+		{
+			economyService = econService.get();
+		}
+		else
+		{
+			getLogger().error("Error! There is no Economy plugin found on this server, PayDay will not work correctly!");
+		}
+	}
+		
 	@Listener
 	public void onPlayerJoin(ClientConnectionEvent.Join event)
 	{
