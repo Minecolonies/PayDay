@@ -6,17 +6,16 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
@@ -30,12 +29,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-@Plugin(id = "PayDay", name = "PayDay", version = "0.4")
+@Plugin(id = "io.github.hsyyid.payday", name = "PayDay", version = "0.5")
 public class PayDay
 {
 	public static ConfigurationNode config;
 	public static ConfigurationLoader<CommentedConfigurationNode> configurationManager;
-	public static Game game;
 	public static EconomyService economyService;
 
 	@Inject
@@ -76,16 +74,13 @@ public class PayDay
 			getLogger().error("The default configuration could not be loaded or created!");
 		}
 
-		game = Sponge.getGame();
-
-		Scheduler scheduler = game.getScheduler();
-		Task.Builder taskBuilder = scheduler.createTaskBuilder();
+		Task.Builder taskBuilder = Sponge.getScheduler().createTaskBuilder();
 
 		taskBuilder.execute(new Runnable()
 		{
 			public void run()
 			{
-				for (Player player : game.getServer().getOnlinePlayers())
+				for (Player player : Sponge.getServer().getOnlinePlayers())
 				{
 					Subject subject = player.getContainingCollection().get(player.getIdentifier());
 
@@ -97,23 +92,13 @@ public class PayDay
 						{
 							BigDecimal pay = new BigDecimal(Double.parseDouble(optionSubject.getOption("pay").get()));
 							player.sendMessage(Text.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "It's PayDay! Here is your salary of " + pay + " dollars! Enjoy!"));
-							UniqueAccount uniqueAccount = null;
-
-							if (economyService.getAccount(player.getUniqueId()).isPresent())
-							{
-								uniqueAccount = economyService.getAccount(player.getUniqueId()).get();
-							}
-							else
-							{
-								uniqueAccount = economyService.createAccount(player.getUniqueId()).get();
-							}
-
-							uniqueAccount.deposit(economyService.getDefaultCurrency(), pay, Cause.of(Sponge.getPluginManager().getPlugin("PayDay").get()));
+							UniqueAccount uniqueAccount = economyService.getOrCreateAccount(player.getUniqueId()).get();
+							uniqueAccount.deposit(economyService.getDefaultCurrency(), pay, Cause.of(NamedCause.owner(this)));
 						}
 					}
 				}
 			}
-		}).interval(1, Utils.getTimeUnit()).name("PayDay - Pay").submit(game.getPluginManager().getPlugin("PayDay").get().getInstance().get());
+		}).interval(1, Utils.getTimeUnit()).name("PayDay - Pay").submit(Sponge.getPluginManager().getPlugin("io.github.hsyyid.payday").get().getInstance().get());
 
 		getLogger().info("-----------------------------");
 		getLogger().info("PayDay was made by HassanS6000!");
@@ -122,13 +107,13 @@ public class PayDay
 		getLogger().info("-----------------------------");
 		getLogger().info("PayDay loaded!");
 	}
-	
+
 	@Listener
 	public void onGamePostInit(GamePostInitializationEvent event)
 	{
 		Optional<EconomyService> econService = Sponge.getServiceManager().provide(EconomyService.class);
-		
-		if(econService.isPresent())
+
+		if (econService.isPresent())
 		{
 			economyService = econService.get();
 		}
@@ -137,7 +122,7 @@ public class PayDay
 			getLogger().error("Error! There is no Economy plugin found on this server, PayDay will not work correctly!");
 		}
 	}
-		
+
 	@Listener
 	public void onPlayerJoin(ClientConnectionEvent.Join event)
 	{
@@ -153,18 +138,8 @@ public class PayDay
 			{
 				BigDecimal pay = new BigDecimal(Double.parseDouble(optionSubject.getOption("startingbalance").get()));
 				player.sendMessage(Text.of(TextColors.GOLD, "[PayDay]: ", TextColors.GRAY, "Welcome to the server! Here is " + pay + " dollars! Enjoy!"));
-				UniqueAccount uniqueAccount = null;
-
-				if (economyService.getAccount(player.getUniqueId()).isPresent())
-				{
-					uniqueAccount = economyService.getAccount(player.getUniqueId()).get();
-				}
-				else
-				{
-					uniqueAccount = economyService.createAccount(player.getUniqueId()).get();
-				}
-
-				uniqueAccount.deposit(economyService.getDefaultCurrency(), pay, Cause.of(Sponge.getPluginManager().getPlugin("PayDay").get()));
+				UniqueAccount uniqueAccount = economyService.getOrCreateAccount(player.getUniqueId()).get();
+				uniqueAccount.deposit(economyService.getDefaultCurrency(), pay, Cause.of(NamedCause.owner(this)));
 			}
 		}
 	}
