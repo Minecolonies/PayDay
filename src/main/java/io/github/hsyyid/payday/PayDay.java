@@ -87,7 +87,7 @@ public class PayDay
 					uniqueAccount.deposit(economyService.getDefaultCurrency(), pay, Cause.of(NamedCause.owner(this)));
 				}
 			}
-		}).interval(Utils.getTimeAmount(), Utils.getTimeUnit()).name("PayDay - Pay").submit(Sponge.getPluginManager().getPlugin("payday").get().getInstance().get());
+		}).interval(Utils.getTimeAmount(), Utils.getTimeUnit()).name("PayDay - Pay").submit(this);
 
 		getLogger().info("-----------------------------");
 		getLogger().info("PayDay was made by HassanS6000!");
