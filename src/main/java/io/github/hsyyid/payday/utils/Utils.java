@@ -10,16 +10,16 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 
-public class Utils 
+public class Utils
 {
     public static TimeUnit getTimeUnit()
     {
         ConfigurationNode valueNode = PayDay.config.getNode((Object[]) ("timeunit").split("\\."));
-        
+
         if(valueNode.getValue() != null)
         {
             String value = valueNode.getString();
-            
+
             if(value.toLowerCase().equals("days"))
             {
                 return TimeUnit.DAYS;
@@ -56,16 +56,31 @@ public class Utils
         }
         else
         {
-            Utils.setTimeUnit("Hours");
+            Utils.setConfig("timeunit", "Hours");
             return TimeUnit.HOURS;
         }
     }
-    
-    public static void setTimeUnit(String timeunit)
+
+    public static int getTimeAmount()
+    {
+        ConfigurationNode valueNode = PayDay.config.getNode((Object[]) ("timeamount").split("\\."));
+
+        try{
+            String value = valueNode.getString();
+            return Integer.parseInt(value);
+        }
+        catch (RuntimeException e)
+        {
+            Utils.setConfig("timeamount", "1");
+            return 1;
+        }
+    }
+
+    public static void setConfig(String key, String value)
     {
         ConfigurationLoader<CommentedConfigurationNode> configManager = PayDay.getConfigManager();
-        PayDay.config.getNode("timeunit").setValue(timeunit);
-        
+        PayDay.config.getNode(key).setValue(value);
+
         try
         {
             configManager.save(PayDay.config);
@@ -73,7 +88,7 @@ public class Utils
         }
         catch (IOException e)
         {
-            System.out.println("Failed to save TimeUnit!");
+            System.out.println("Failed to save "+key+"!");
         }
     }
 }
