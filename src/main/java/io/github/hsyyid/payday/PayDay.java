@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-@Plugin(id = "payday", name = "PayDay", version = "0.5", description = "Pay your players as they play.")
+@Plugin(id = "payday", name = "PayDay", version = "0.6", description = "Pay your players as they play.")
 public class PayDay
 {
 	public static ConfigurationNode config;
@@ -91,6 +91,7 @@ public class PayDay
 
 		getLogger().info("-----------------------------");
 		getLogger().info("PayDay was made by HassanS6000!");
+        getLogger().info("Patched to APIv5 by Kostronor from the Minecolonies team!");
 		getLogger().info("Please post all errors on the Sponge Thread or on GitHub!");
 		getLogger().info("Have fun, and enjoy! :D");
 		getLogger().info("-----------------------------");
